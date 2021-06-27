@@ -3,6 +3,7 @@ import styled from "styled-components";
 import StockTable from "./body/tables/StockTable";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
+import PhoneNumber from "./body/header/PhoneNumber";
 
 function App() {
   const [user] = useAuthState(auth);
