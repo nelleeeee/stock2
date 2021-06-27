@@ -11,6 +11,7 @@ function App() {
       {/* <Router>
         <Route exact path="/" component={StockTable} user={user} />
       </Router> */}
+      <PhoneNumber />
       <StockTable user={user} />
     </Container>
   );
