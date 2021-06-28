@@ -27,19 +27,28 @@ function StockTable({ user }) {
     setQuantity(e.target.value);
   };
 
+  const [albumNumber, setAlbumNumber] = useState("");
+  const albumNumberHandle = e => {
+    setAlbumNumber(e.target.value);
+  };
+
   //   입력
   const sendContent = () => {
-    db.collection("content").doc().set({
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      coverUrl,
-      albumName,
-      quantity,
-      albumPrice,
-    });
+    db.collection("content")
+      .doc()
+      .set({
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        coverUrl,
+        albumName,
+        quantity,
+        albumPrice,
+        albumNumber: Number(albumNumber),
+      });
     setCoverUrl("");
     setAlbumName("");
     setQuantity("");
     setAlbumPrice("");
+    setAlbumNumber("");
   };
 
   //   로그인
@@ -57,7 +66,7 @@ function StockTable({ user }) {
   const [albumLists, setAlbumLists] = useState([]);
   useEffect(() => {
     db.collection("content")
-      .orderBy("createdAt", "desc")
+      .orderBy("albumNumber", "desc")
       .onSnapshot(snapshot => {
         setAlbumLists(
           snapshot.docs.map(doc => ({
@@ -69,9 +78,11 @@ function StockTable({ user }) {
   }, []);
   return (
     <>
-      {user?.uid === "JMgFWWDDYnWK397zghsOv9ZfEdt1" ? (
+      {user?.uid === "JMgFWWDDYnWK397zghsOv9ZfEdt1" ||
+      user?.uid === "sb8waDqYPrO6iLT1G7yaxtVaBfk2" ? (
         <Container>
           <Header>
+            <AlbumNumber>번호</AlbumNumber>
             <Cover>커버</Cover>
             <Album>앨범명</Album>
             <Price>가격</Price>
@@ -79,6 +90,11 @@ function StockTable({ user }) {
             <Acc>버튼</Acc>
           </Header>
           <Input>
+            <InputAlbumNumber
+              value={albumNumber}
+              onChange={albumNumberHandle}
+              placeholder="앨범 번호"
+            />
             <InputCover
               value={coverUrl}
               onChange={coverUrlHandle}
@@ -111,7 +127,14 @@ function StockTable({ user }) {
           {albumLists?.map(
             ({
               id,
-              data: { createdAt, coverUrl, albumName, quantity, albumPrice },
+              data: {
+                createdAt,
+                coverUrl,
+                albumName,
+                quantity,
+                albumPrice,
+                albumNumber,
+              },
             }) => (
               <Row
                 key={id}
@@ -121,6 +144,7 @@ function StockTable({ user }) {
                 albumName={albumName}
                 quantity={quantity}
                 albumPrice={albumPrice}
+                albumNumber={albumNumber}
                 user={user}
               />
             )
@@ -129,6 +153,8 @@ function StockTable({ user }) {
       ) : (
         <Container>
           <Header>
+            <AlbumNumber>번호</AlbumNumber>
+
             <Cover>커버</Cover>
             <Album>앨범명</Album>
             <Price>가격</Price>
@@ -138,7 +164,14 @@ function StockTable({ user }) {
           {albumLists?.map(
             ({
               id,
-              data: { createdAt, coverUrl, albumName, quantity, albumPrice },
+              data: {
+                createdAt,
+                coverUrl,
+                albumName,
+                quantity,
+                albumPrice,
+                albumNumber,
+              },
             }) => (
               <Row
                 key={id}
@@ -148,6 +181,7 @@ function StockTable({ user }) {
                 albumName={albumName}
                 quantity={quantity}
                 albumPrice={albumPrice}
+                albumNumber={albumNumber}
               />
             )
           )}
@@ -179,15 +213,19 @@ function StockTable({ user }) {
 export default StockTable;
 
 const Container = styled.div`
-  margin: 30px auto;
+  margin: auto;
   width: 75vw;
   display: flex;
   flex-direction: column;
   flex: 1;
 `;
 
+const AlbumNumber = styled.div`
+  flex: 0.07;
+`;
+
 const Cover = styled.div`
-  flex: 0.19;
+  flex: 0.12;
 `;
 const Album = styled.div`
   flex: 0.49;
@@ -220,12 +258,16 @@ const Header = styled.div`
 //
 const Input = styled.div`
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   flex-grow: 1;
 `;
 
+const InputAlbumNumber = styled(TextField)`
+  flex: 0.09;
+`;
+
 const InputCover = styled(TextField)`
-  flex: 0.19;
+  flex: 0.1;
 `;
 const InputAlbum = styled(TextField)`
   flex: 0.49;

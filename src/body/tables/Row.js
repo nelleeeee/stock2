@@ -4,7 +4,15 @@ import { useState } from "react";
 import styled from "styled-components";
 import { db } from "../../firebase";
 
-function Row({ id, user, coverUrl, albumName, quantity, albumPrice }) {
+function Row({
+  id,
+  user,
+  coverUrl,
+  albumName,
+  quantity,
+  albumPrice,
+  albumNumber,
+}) {
   const [fix, setFix] = useState(false);
 
   // input state
@@ -26,6 +34,10 @@ function Row({ id, user, coverUrl, albumName, quantity, albumPrice }) {
     setAlbumPriceFix(e.target.value);
   };
 
+  const [albumNumberFix, setAlbumNumberFix] = useState(albumNumber);
+  const albumNumberFixHandle = e => {
+    setAlbumNumberFix(e.target.value);
+  };
   //   입력
 
   const fixHandle = () => {
@@ -38,31 +50,44 @@ function Row({ id, user, coverUrl, albumName, quantity, albumPrice }) {
 
   const fixUpdate = () => {
     if (
-      (coverUrlFix || albumNameFix || quantityFix || albumPriceFix) === "삭제"
+      (albumNumberFix ||
+        coverUrlFix ||
+        albumNameFix ||
+        quantityFix ||
+        albumPriceFix) === "삭제"
     ) {
       db.collection("content").doc(id).delete();
     }
-    db.collection("content").doc(id).update({
-      coverUrl: coverUrlFix,
-      albumName: albumNameFix,
-      quantity: quantityFix,
-      albumPrice: albumPriceFix,
-    });
+    db.collection("content")
+      .doc(id)
+      .update({
+        coverUrl: coverUrlFix,
+        albumName: albumNameFix,
+        quantity: quantityFix,
+        albumPrice: albumPriceFix,
+        albumNumber: Number(albumNumberFix),
+      });
     setCoverUrlFix(coverUrlFix);
     setAlbumNameFix(albumNameFix);
     setQuantityFix(quantityFix);
     setAlbumPriceFix(albumPriceFix);
+    setAlbumNumberFix(albumNumberFix);
     fixHandle();
   };
   return (
     <Container>
       {fix ? (
         <>
+          <AlbumNumberFix
+            value={albumNumberFix}
+            onChange={albumNumberFixHandle}
+          />
           <CoverImageFix value={coverUrlFix} onChange={coverUrlFixHandle} />
           <AlbumNameFix value={albumNameFix} onChange={albumNameFixHandle} />
           <PriceFix value={albumPriceFix} onChange={albumPriceFixHandle} />
           <QuantFix value={quantityFix} onChange={quantityFixHandle} />
-          {user?.uid === "JMgFWWDDYnWK397zghsOv9ZfEdt1" ? (
+          {user?.uid === "JMgFWWDDYnWK397zghsOv9ZfEdt1" ||
+          user?.uid === "sb8waDqYPrO6iLT1G7yaxtVaBfk2" ? (
             <Accc
               //   style={{ flex: "0.09", width: "10px" }}
               onClick={fixUpdate}
@@ -77,6 +102,7 @@ function Row({ id, user, coverUrl, albumName, quantity, albumPrice }) {
         </>
       ) : (
         <>
+          <AlbumNumber>{albumNumber}</AlbumNumber>
           <CoverImage src={coverUrl} />
           <AlbumName>{albumName}</AlbumName>
           <Price>
@@ -87,7 +113,8 @@ function Row({ id, user, coverUrl, albumName, quantity, albumPrice }) {
             {quantity}
             {"장"}
           </Quant>
-          {user?.uid === "JMgFWWDDYnWK397zghsOv9ZfEdt1" ? (
+          {user?.uid === "JMgFWWDDYnWK397zghsOv9ZfEdt1" ||
+          user?.uid === "sb8waDqYPrO6iLT1G7yaxtVaBfk2" ? (
             <Accc
               // style={{ flex: "0.09", width: "10px" }}
               onClick={fixHandle}
@@ -108,14 +135,20 @@ export default Row;
 const Container = styled.div`
   display: flex;
   flex-grow: 1;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
   margin-top: 3px;
   margin-bottom: 3px;
 `;
 
+const AlbumNumber = styled.div`
+  flex: 0.09;
+  text-align: center;
+  font-weight: bold;
+`;
+
 const CoverImage = styled.img`
-  flex: 0.19;
+  flex: 0.1;
   object-fit: contain;
   max-height: 70px;
   border-radius: 10%;
@@ -134,11 +167,17 @@ const Quant = styled.div`
   flex: 0.09;
   text-align: center;
 `;
-const Accc = styled(Button)``;
+const Accc = styled(Button)`
+  flex: 0.09;
+`;
 
 // 수정 fix
+
+const AlbumNumberFix = styled(TextField)`
+  flex: 0.09;
+`;
 const CoverImageFix = styled(TextField)`
-  flex: 0.19;
+  flex: 0.1;
 `;
 const AlbumNameFix = styled(TextField)`
   flex: 0.49;
